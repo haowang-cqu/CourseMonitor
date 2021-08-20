@@ -1,3 +1,5 @@
 .vscode/
 .venv/
 __pycache__/
+test-config.json
+course-list.json

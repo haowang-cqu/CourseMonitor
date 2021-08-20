@@ -1,0 +1,12 @@
+{
+    "username": "xxxxxx",
+    "password": "xxxxxx",
+    "courseCode": [
+        "IPC18004",
+        "IPC18003",
+        "IPC18002"
+    ],
+    "sendEmail": "aaaa@aaaa.aaa",
+    "sendEmailPassword": "xxxxx",
+    "receiveEmail": "bbbb@bbbb.bbb"
+}
