@@ -63,7 +63,7 @@ def can_choose(config: Dict, course_list: list) -> list:
 
 
 def main():
-    config_path = os.path.join(os.path.dirname(__file__), "test-config.json")
+    config_path = os.path.join(os.path.dirname(__file__), "config.json")
     config = load_config(config_path)
     session = login(config["username"], config["password"])
     if session is None:
