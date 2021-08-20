@@ -14,7 +14,7 @@
 2. 编辑配置文件`config.json`，完善基本信息
 3. 使用crontab运行定时任务：`crontab -e`然后按需添加定时任务，例如
    ```bash
-    */15 * * * * python3 /opt/CourseMonitor/main.py >/dev/null 2>&1
+    */15 * * * * source /opt/CourseMonitor/.venv/bin/activate && python3 /opt/CourseMonitor/main.py >/dev/null 2>&1
    ```
    上述定时任务每15分钟执行一次
 4. 用完后删除crontab
