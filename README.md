@@ -20,7 +20,7 @@
 
 4. 也可以使用nohup使其在后台运行
    ```bash
-   nohup python ./main.py > course-monitor.log 2>&1 &
+   nohup python ./main.py > ./course-monitor.log 2>&1 &
    ```
 
 ### 配置文件

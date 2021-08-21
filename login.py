@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 from encrypt import *
 from typing import Dict
 from urllib import parse
+import logging
 
 
 headers = {
@@ -43,9 +44,11 @@ def get_formdata(html: str, username: str, password: str) -> Dict:
 def login(username: str, password: str) -> requests.Session:
     """用户登录
     """
+    logger = logging.getLogger(__name__)
     session = requests.Session()
 
     # step1: 获取登录页面
+    logger.info("正在获取登录页面")
     login_page_url = "http://authserver.cqu.edu.cn/authserver/login"
     resp = session.get(
         url=login_page_url,
@@ -56,9 +59,11 @@ def login(username: str, password: str) -> requests.Session:
         allow_redirects=False
     )
     if resp.status_code != 200:
+        logger.error("获取登录页面失败，请检查网络连接")
         return None
     
     # step2: 构造登录表单并提交
+    logger.info("正在登录")
     login_formdata = get_formdata(resp.text, username, password)
     resp = session.post(
         url=login_page_url,
@@ -67,9 +72,11 @@ def login(username: str, password: str) -> requests.Session:
         allow_redirects=False
     )
     if resp.status_code != 302:
+        logger.error("登录失败，请检查用户名和密码是否正确")
         return None
 
     # step3: 重定向到目标服务
+    logger.info("正在重定向到选课网")
     target_url = resp.headers["Location"]
     resp = session.get(
         url=target_url,
@@ -77,9 +84,11 @@ def login(username: str, password: str) -> requests.Session:
         allow_redirects=False
     )
     if resp.status_code != 302:
+        logger.error("重定向失败")
         return None
     
     # step4: 获取oauth token
+    logger.info("正在进行OAuth认证")
     oauth_url = "http://my.cqu.edu.cn/authserver/oauth/authorize"
     resp = session.get(
         url=oauth_url,
@@ -94,6 +103,7 @@ def login(username: str, password: str) -> requests.Session:
         allow_redirects=False
     )
     if resp.status_code != 302:
+        logger.error("OAuth认证失败")
         return None
     
     # step5: 生成oauth验证表单并提交验证
@@ -115,7 +125,8 @@ def login(username: str, password: str) -> requests.Session:
         data=oauth_formdata
     )
     if resp.status_code != 200:
+        logger.error("OAuth认证失败")
         return None
     headers["Authorization"] = "Bearer " + resp.json()["access_token"]
-    
+    logger.info("登录成功")
     return session

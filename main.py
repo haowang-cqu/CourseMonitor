@@ -2,9 +2,19 @@ from login import login, headers
 from typing import Dict
 import requests
 import yagmail
+import logging
 import json
 import time
 import os
+
+
+def config_logging():
+    """配置日志格式
+    """
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)-8s %(name)-10s %(message)s"
+    )
 
 
 def load_config(path: str) -> Dict:
@@ -64,29 +74,40 @@ def can_choose(config: Dict, course_list: list) -> list:
 
 
 def main():
+    logger = logging.getLogger(__name__)
     config_path = os.path.join(os.path.dirname(__file__), "config.json")
     config = load_config(config_path)
     session = login(config["username"], config["password"])
     if session is None:
-        print("login error")
-        os.exit(-1)
+        exit(1)
     while True:
         # 获取课程列表
+        logger.info("正在获取课程列表")
         course_list = get_course_list(session)
         if len(course_list) == 0:
-            return
+            logger.error("获取课程列表失败")
+            logger.info("正在尝试重新登录")
+            session = login(config["username"], config["password"])
+            if session is None:
+                exit(0)
+            continue
         # 获取指定课程中可以选课的列表
+        logger.info("正在判断是否有可选课程")
         can_choose_list = can_choose(config, course_list)
         if len(can_choose_list) == 0:
-            return
-        # 发送邮件
-        subject = "课程监测通知"
-        message = ""
-        for course in can_choose_list:
-            message += "{}[{}]有空余名额啦!\n".format(course["name"], course["codeR"])
-        send_email(config, subject, message)
+            logger.info("暂时没有可选课程")
+        else:
+            # 发送邮件
+            subject = "课程监测通知"
+            message = ""
+            for course in can_choose_list:
+                message += "{}[{}]有空余名额啦!\n".format(course["name"], course["codeR"])
+                logger.info("{}[{}]有空余名额啦!".format(course["name"], course["codeR"]))
+            logger.info("正在发送通知邮件")
+            send_email(config, subject, message)
         time.sleep(config["interval"])
 
 
 if __name__ == "__main__":
+    config_logging()
     main()
