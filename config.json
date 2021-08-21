@@ -6,7 +6,9 @@
         "IPC18003",
         "IPC18002"
     ],
+    "interval": 300,
     "sendEmail": "aaaa@aaaa.aaa",
     "sendEmailPassword": "xxxxx",
+    "smtpHost": "smtp.qq.com",
     "receiveEmail": "bbbb@bbbb.bbb"
 }

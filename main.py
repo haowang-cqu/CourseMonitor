@@ -3,6 +3,7 @@ from typing import Dict
 import requests
 import yagmail
 import json
+import time
 import os
 
 
@@ -68,21 +69,23 @@ def main():
     session = login(config["username"], config["password"])
     if session is None:
         print("login error")
-        exit(-1)
-    # 获取课程列表
-    course_list = get_course_list(session)
-    if len(course_list) == 0:
-        return
-    # 获取指定课程中可以选课的列表
-    can_choose_list = can_choose(config, course_list)
-    if len(can_choose_list) == 0:
-        return
-    # 发送邮件
-    subject = "课程监测通知"
-    message = ""
-    for course in can_choose_list:
-        message += "{}[{}]有空余名额啦!\n".format(course["name"], course["codeR"])
-    send_email(config, subject, message)
+        os.exit(-1)
+    while True:
+        # 获取课程列表
+        course_list = get_course_list(session)
+        if len(course_list) == 0:
+            return
+        # 获取指定课程中可以选课的列表
+        can_choose_list = can_choose(config, course_list)
+        if len(can_choose_list) == 0:
+            return
+        # 发送邮件
+        subject = "课程监测通知"
+        message = ""
+        for course in can_choose_list:
+            message += "{}[{}]有空余名额啦!\n".format(course["name"], course["codeR"])
+        send_email(config, subject, message)
+        time.sleep(config["interval"])
 
 
 if __name__ == "__main__":
